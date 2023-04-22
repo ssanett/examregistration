@@ -5,7 +5,7 @@
 
 A vizsgaremek egy vizsgára történő terembeosztást valósít meg. Az applikácicóban létrehozhatóak diákok, termek és 
 vizsgáztatók. Ezenkívül az ezeket kezelő funkciókat valósítja meg a teljesség igénye nélkül. Hozzá lehet rendelni
-vizsgáztatóhoz termet, diákhoz termet valamint ezeket módosítani lehet. Valamint megvalóstható ezek törlése és felvétele is.
+vizsgáztatóhoz termet, diákhoz termet valamint ezeket módosítani lehet. Valamint megvalósítható ezek törlése és felvétele is.
 A diák terembe helyezésénél figyelembe veszi a teremben zajló vizsgatárgyakat illetve a terem kapacitását. A vizsgáztató és
 a terem összekapcsolásánál pedig, hogy a terem rendelkezik-e már vizsgáztatóval, valamint hogy a vizsgáztató tantárgya 
 megegyezik-e a teremben zajló vizsgával. 
