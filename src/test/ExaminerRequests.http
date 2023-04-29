@@ -1,0 +1,17 @@
+GET http://localhost:8080/api/examiners
+Accept: application/json
+
+###
+POST http://localhost:8080/api/examiners
+Content-Type: application/json
+
+{
+  "firstName": "Hanna",
+  "lastName" : "Doe"
+
+}
+
+###
+
+
+
