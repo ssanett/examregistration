@@ -7,10 +7,11 @@ import training360.examregistration.converter.Converter;
 import training360.examregistration.dtos.*;
 import training360.examregistration.exceptions.RoomIsAlreadyExistException;
 import training360.examregistration.exceptions.RoomNotFoundException;
+import training360.examregistration.model.Examiner;
 import training360.examregistration.model.Room;
 import training360.examregistration.model.Student;
+import training360.examregistration.repositories.ExaminerRepository;
 import training360.examregistration.repositories.RoomRepository;
-
 import java.util.List;
 
 @Service
@@ -19,6 +20,7 @@ import java.util.List;
 public class RoomService {
 
     private RoomRepository roomRepository;
+    private ExaminerRepository examinerRepository;
     private Converter converter;
 
 
@@ -44,15 +46,32 @@ public class RoomService {
         return converter.toDto(room);
     }
 
-
+    @Transactional
     public void deleteRoomByNumber(String number) {
         Room room = roomRepository.findByNumber(number).orElseThrow(RoomNotFoundException::new);
         List<Student> students = room.getStudents();
         for (Student s : students) {
             s.setRoom(null);
         }
-        roomRepository.delete(room);
+        deleteExaminerFromRoom(room);
+        roomRepository.deleteById(room.getId());
     }
+
+    public List<RoomDto> findRooms() {
+        return converter.roomToDto(roomRepository.findAll());
+    }
+
+    @Transactional
+    public void deleteRoomById(long roomId) {
+        Room room = roomRepository.findById(roomId).orElseThrow(RoomNotFoundException::new);
+        List<Student> students = room.getStudents();
+        for (Student s : students) {
+            s.setRoom(null);
+        }
+        deleteExaminerFromRoom(room);
+        roomRepository.deleteById(roomId);
+    }
+
 
     private void checkRoomNumber(String number) {
         List<String> numbers = roomRepository.findAll().stream().map(Room::getNumber).toList();
@@ -63,12 +82,12 @@ public class RoomService {
         }
     }
 
-
-    public List<RoomDto> findRooms() {
-        return converter.roomToDto(roomRepository.findAll());
-    }
-
-    public void deleteRoomById(long roomId) {
-        roomRepository.deleteById(roomId);
+    private void deleteExaminerFromRoom(Room room) {
+        List<Examiner> examiners = examinerRepository.findAll();
+        for (Examiner e : examiners) {
+            if (e.getRoom() != null && e.getRoom().getId().equals(room.getId())) {
+                e.setRoom(null);
+            }
+        }
     }
 }

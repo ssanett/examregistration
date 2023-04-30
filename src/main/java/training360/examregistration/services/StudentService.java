@@ -38,9 +38,15 @@ public class StudentService {
         return converter.toDto(studentRepository.save(student));
     }
 
-
     public void deleteStudentById(long studentId) {
         studentRepository.deleteById(studentId);
+    }
+
+    public List<StudentDto> findAllStudentsByName(Optional<String> namePart) {
+        if(namePart.isPresent()){
+            return converter.toDto(studentRepository.findStudentsByName(namePart));
+        }
+        return converter.toDto(studentRepository.findAll());
     }
 
     @Transactional
@@ -68,19 +74,10 @@ public class StudentService {
         }
     }
 
-
-
     private void checkStudentAndRoomSubject(Student student, Room room){
         if(room.getSubject()!=null && !student.getSubjects().contains(room.getSubject())){
             throw new StudentSubjectNotFitsException();
         }
     }
 
-
-    public List<StudentDto> findAllStudentsByName(Optional<String> namePart) {
-        if(namePart.isPresent()){
-            return converter.toDto(studentRepository.findStudentsByName(namePart));
-        }
-        return converter.toDto(studentRepository.findAll());
-    }
 }

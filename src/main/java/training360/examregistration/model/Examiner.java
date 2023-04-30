@@ -29,8 +29,6 @@ public class Examiner {
     @Column(name = "last_name")
     private String lastName;
 
-
-    //@NotBlank(message = "Examiner must teach at least one subject")
     @ElementCollection
     @Column(name = "examiner_subject")
     @Enumerated(EnumType.STRING)

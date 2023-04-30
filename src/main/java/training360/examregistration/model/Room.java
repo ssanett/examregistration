@@ -58,7 +58,6 @@ public class Room {
     }
 
     public void removeStudent(Student student){
-
         students.remove(student);
         student.setRoom(null);
     }

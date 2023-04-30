@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Sql(statements = {"delete from student_subjects","delete from students", "delete from examiner_taught_subjects","delete  from examiners", "delete  from rooms"})
+@Sql(statements = {"delete from student_subjects", "delete from students", "delete from examiner_taught_subjects", "delete  from examiners", "delete  from rooms"})
 class RoomControllerTestIT {
 
     @Autowired
@@ -59,7 +59,7 @@ class RoomControllerTestIT {
     }
 
     @Test
-    void testCreateRoomExistedNumber(){
+    void testCreateRoomExistedNumber() {
 
         ProblemDetail problemDetail = client.post()
                 .uri("/api/rooms/create")
@@ -69,7 +69,7 @@ class RoomControllerTestIT {
                 .expectBody(ProblemDetail.class).returnResult().getResponseBody();
 
         assertEquals(URI.create("examregistration/invalid_request"), problemDetail.getType());
-        assertEquals(String.format("Room number %s is already exist.",1), problemDetail.getDetail());
+        assertEquals(String.format("Room number %s is already exist.", 1), problemDetail.getDetail());
     }
 
     @Test
@@ -125,7 +125,7 @@ class RoomControllerTestIT {
     }
 
     @Test
-    void testUpdateRoomWithSubjectRoomNotFound(){
+    void testUpdateRoomWithSubjectRoomNotFound() {
         ProblemDetail problemDetail = client.put()
                 .uri(uriBuilder -> uriBuilder.path("/api/rooms/{roomId}").build(0))
                 .bodyValue(new CreateRoomWithSubjectCommand(Subject.HISTORY))
@@ -184,7 +184,7 @@ class RoomControllerTestIT {
                 .expectBodyList(RoomDto.class).returnResult().getResponseBody();
 
         assertThat(result).hasSize(2);
-        assertThat(result).extracting(RoomDto::getNumber).containsExactly("1","2");
+        assertThat(result).extracting(RoomDto::getNumber).containsExactly("1", "2");
     }
 
     @Test
@@ -204,7 +204,7 @@ class RoomControllerTestIT {
     }
 
     @Test
-    void testDeleteRoomNumberNotFound(){
+    void testDeleteRoomNumberNotFound() {
         ProblemDetail problemDetail = client.delete()
                 .uri(uriBuilder -> uriBuilder.path("/api/rooms/{number}").build(0))
                 .exchange()
@@ -216,7 +216,7 @@ class RoomControllerTestIT {
     }
 
     @Test
-    void testDeleteRoomById(){
+    void testDeleteRoomById() {
         client.delete()
                 .uri(uriBuilder -> uriBuilder.path("/api/rooms/delete/{roomId}").build(room.getId()))
                 .exchange()
