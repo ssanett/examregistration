@@ -39,7 +39,7 @@ class ExaminerControllerTestIT {
 
     @BeforeEach
     void init(){
-    subjects = List.of(Subject.LITERATURE, Subject.GERMAN);
+    subjects = List.of(Subject.LITERATURE, Subject.GERMAN, Subject.HISTORY);
     room = client.post()
             .uri("/api/rooms/create")
                 .bodyValue(new CreateRoomCommand("1", 10))
@@ -58,7 +58,6 @@ class ExaminerControllerTestIT {
             .expectStatus().isCreated()
             .expectBody(ExaminerDto.class).returnResult().getResponseBody();
 }
-
 
     @Test
     void testCreateExaminer(){
@@ -101,23 +100,42 @@ class ExaminerControllerTestIT {
 
 @Test
     void testUpdateExaminerRoom(){
-
     client.put()
-            .uri(uriBuilder -> uriBuilder.path("/api/examiners/{examinerId}")
-                    .build(examiner.getId()))
-            .bodyValue(new CreateRoomToExaminer(room.getId()))
+            .uri(uriBuilder -> uriBuilder.path("/api/rooms/{roomId}").build(room.getId()))
+            .bodyValue(new CreateRoomWithSubjectCommand(Subject.HISTORY))
+            .exchange()
+            .expectBody(RoomDto.class).returnResult().getResponseBody();
+
+    ExaminerDto result = client.put()
+            .uri(uriBuilder -> uriBuilder.path("/api/examiners/{roomId}")
+                    .build(room.getId()))
+            .bodyValue(new CreateExaminerToRoomCommand(examiner.getId()))
             .exchange()
             .expectStatus().isAccepted()
             .expectBody(ExaminerDto.class).returnResult().getResponseBody();
 
-    ExaminerDto result =    client.get()
-            .uri(uriBuilder -> uriBuilder.path("/api/examiners/{examinerId}")
-                    .build(examiner.getId()))
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody(ExaminerDto.class).returnResult().getResponseBody();
-
     assertEquals("1",result.getRoom().getNumber());
+}
+
+@Test
+void testExaminerAndRoomSubjectNotFits(){
+    client.put()
+            .uri(uriBuilder -> uriBuilder.path("/api/rooms/{roomId}").build(room.getId()))
+            .bodyValue(new CreateRoomWithSubjectCommand(Subject.MATH))
+            .exchange()
+            .expectBody(RoomDto.class).returnResult().getResponseBody();
+
+    ProblemDetail problemDetail = client.put()
+            .uri(uriBuilder -> uriBuilder.path("/api/examiners/{roomId}")
+                    .build(room.getId()))
+            .bodyValue(new CreateExaminerToRoomCommand(examiner.getId()))
+            .exchange()
+            .expectStatus().isEqualTo(406)
+            .expectBody(ProblemDetail.class).returnResult().getResponseBody();
+
+    assertEquals("Student's subject is not valid in the room", problemDetail.getDetail());
+
+
 }
 
 @Test
@@ -139,6 +157,63 @@ class ExaminerControllerTestIT {
             .hasSize(2)
             .extracting(ExaminerDto::getFirstName)
             .containsExactlyInAnyOrder("X","Márta");
+}
+
+@Test
+void findExaminersByNamePart(){
+    client.post()
+            .uri("/api/examiners")
+            .bodyValue(new CreateExaminerCommand("X", "Y",subjects))
+            .exchange()
+            .expectStatus().isCreated()
+            .expectBody(ExaminerDto.class).returnResult().getResponseBody();
+
+    client.post()
+            .uri("/api/examiners")
+            .bodyValue(new CreateExaminerCommand("Anna", "Kovács",subjects))
+            .exchange()
+            .expectStatus().isCreated()
+            .expectBody(ExaminerDto.class).returnResult().getResponseBody();
+
+    List<ExaminerDto> result = client.get()
+            .uri(uriBuilder -> uriBuilder.path("/api/examiners").queryParam("namePart","Kovács").build())
+            .exchange()
+            .expectStatus().isOk()
+            .expectBodyList(ExaminerDto.class).returnResult().getResponseBody();
+
+    assertThat(result)
+            .hasSize(1)
+            .extracting(ExaminerDto::getFirstName)
+            .containsExactlyInAnyOrder("Anna");
+}
+
+@Test
+    void testRemoveExaminerFromRoom(){
+
+    client.put()
+            .uri(uriBuilder -> uriBuilder.path("/api/rooms/{roomId}").build(room.getId()))
+            .bodyValue(new CreateRoomWithSubjectCommand(Subject.HISTORY))
+            .exchange()
+            .expectBody(RoomDto.class).returnResult().getResponseBody();
+
+    ExaminerDto result = client.put()
+            .uri(uriBuilder -> uriBuilder.path("/api/examiners/{roomId}")
+                    .build(room.getId()))
+            .bodyValue(new CreateExaminerToRoomCommand(examiner.getId()))
+            .exchange()
+            .expectStatus().isAccepted()
+            .expectBody(ExaminerDto.class).returnResult().getResponseBody();
+
+    assertEquals("1",result.getRoom().getNumber());
+
+    client.put()
+            .uri(uriBuilder -> uriBuilder.path("/api/examiners/remove/{examinerId}")
+                    .build(result.getId()))
+            .exchange()
+            .expectStatus().isAccepted()
+            .expectBody(ExaminerDto.class).returnResult().getResponseBody();
+
+    assertNull(examiner.getRoom());
 
 }
 

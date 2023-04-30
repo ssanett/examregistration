@@ -4,10 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import training360.examregistration.converter.Converter;
-import training360.examregistration.dtos.CreateExaminerCommand;
-import training360.examregistration.dtos.CreateExaminerToRoomCommand;
-import training360.examregistration.dtos.CreateRoomToExaminer;
-import training360.examregistration.dtos.ExaminerDto;
+import training360.examregistration.dtos.*;
 import training360.examregistration.exceptions.*;
 import training360.examregistration.model.Examiner;
 import training360.examregistration.model.Room;
@@ -16,6 +13,7 @@ import training360.examregistration.repositories.ExaminerRepository;
 import training360.examregistration.repositories.RoomRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -26,13 +24,11 @@ public class ExaminerService {
     private Converter converter;
 
     public ExaminerDto createExaminer(CreateExaminerCommand command) {
-
         Examiner examiner = Examiner.builder()
                 .firstName(command.getFirstName())
                 .lastName(command.getLastName())
                 .taughtSubjects(command.getTaughtSubjects())
                 .build();
-
         return converter.examinerToDto(examinerRepository.save(examiner));
     }
 
@@ -42,25 +38,18 @@ public class ExaminerService {
         Examiner examiner = examinerRepository.findById(command.getExaminerId()).orElseThrow(ExaminerNotFoundException::new);
         checkExaminerFitsRoom(room, examiner);
         examiner.setRoom(room);
-        examinerRepository.save(examiner);
         return converter.examinerToDto(examinerRepository.save(examiner));
-    }
-
-
-    public ExaminerDto updateRoomByExaminerId(long examinerId, CreateRoomToExaminer command) {
-        Examiner examiner = examinerRepository.findById(examinerId).orElseThrow(ExaminerNotFoundException::new);
-        Room room = roomRepository.findById(command.getRoomId()).orElseThrow(RoomNotFoundException::new);
-        examiner.setRoom(room);
-        return converter.examinerToDto(examinerRepository.save(examiner));
-
     }
 
     public ExaminerDto findRoomByExaminerId(long examinerId) {
-        Examiner examiner =  examinerRepository.findById(examinerId).orElseThrow(ExaminerNotFoundException::new);
+        Examiner examiner = examinerRepository.findById(examinerId).orElseThrow(ExaminerNotFoundException::new);
         return converter.examinerToDto(examiner);
     }
 
-    public List<ExaminerDto> findExaminers() {
+    public List<ExaminerDto> findAllExaminersByName(Optional<String> namePart) {
+        if (namePart.isPresent()) {
+            return converter.examinerToDto(examinerRepository.findExaminersByName(namePart));
+        }
         return converter.examinerToDto(examinerRepository.findAll());
     }
 
@@ -70,16 +59,22 @@ public class ExaminerService {
         examinerRepository.delete(examiner);
     }
 
-
-
-    private void checkSubject(List<Subject> examinerSubjects, Subject roomSubject) {
-        for (Subject s : examinerSubjects) {
-            if (!s.equals(roomSubject)) {
-                throw new ExaminerSubjectNotValid(roomSubject);
-            }
-        }
+    public ExaminerDto removeExaminerFromRoom(long examinerId) {
+        Examiner examiner = examinerRepository.findById(examinerId).orElseThrow(ExaminerNotFoundException::new);
+        examiner.setRoom(null);
+        return converter.examinerToDto(examinerRepository.save(examiner));
     }
 
+
+    private boolean checkSubject(List<Subject> examinerSubjects, Subject roomSubject) {
+        boolean result = false;
+        for (Subject s : examinerSubjects) {
+            if (s.equals(roomSubject)) {
+                result = true;
+            }
+        }
+        return result;
+    }
 
     private void checkExaminer(Examiner examiner) {
         if (examiner.getRoom() != null) {
@@ -88,7 +83,9 @@ public class ExaminerService {
     }
 
     private void checkExaminerFitsRoom(Room room, Examiner examiner) {
-        checkSubject(examiner.getTaughtSubjects(), room.getSubject());
+        if (!checkSubject(examiner.getTaughtSubjects(), room.getSubject())) {
+            throw new StudentSubjectNotFitsException();
+        }
         checkExaminer(examiner);
     }
 

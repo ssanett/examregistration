@@ -18,7 +18,7 @@ POST http://localhost:8080/api/rooms/create
 Content-Type: application/json
 
 {
-  "number": 10,
+  "number": 100,
   "capacity": 10
 }
 ###

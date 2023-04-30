@@ -10,6 +10,7 @@ import training360.examregistration.dtos.*;
 import training360.examregistration.services.StudentService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/students")
@@ -24,6 +25,12 @@ public class StudentController {
     @Operation(summary = "find students", description = "find students by room number")
     public List<StudentDtoWithoutRoom> findStudentsByRoom(@PathVariable("roomNumber") String roomNumber) {
         return studentService.findStudentsByRoom(roomNumber);
+    }
+
+    @GetMapping
+    @Operation(summary = "find all students")
+    public List<StudentDto> findAllStudents(@RequestParam Optional<String> namePart){
+        return studentService.findAllStudentsByName(namePart);
     }
 
 

@@ -25,10 +25,4 @@ public class CreateRoomCommand {
     @Min(value = 5, message = "capacity must be more than 5")
     private int capacity;
 
-    private List<StudentDto> students = new ArrayList<>();
-
-    public CreateRoomCommand(String number, int capacity) {
-        this.number = number;
-        this.capacity = capacity;
-    }
 }

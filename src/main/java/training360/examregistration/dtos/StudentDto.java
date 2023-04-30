@@ -3,6 +3,7 @@ package training360.examregistration.dtos;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import training360.examregistration.model.Room;
 import training360.examregistration.model.Subject;
 
 import java.util.ArrayList;

@@ -9,11 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import training360.examregistration.dtos.CreateExaminerCommand;
 import training360.examregistration.dtos.CreateExaminerToRoomCommand;
-import training360.examregistration.dtos.CreateRoomToExaminer;
 import training360.examregistration.dtos.ExaminerDto;
 import training360.examregistration.services.ExaminerService;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -28,42 +28,41 @@ public class ExaminerController {
     @PostMapping
     @Operation(summary = "create examiner", description = "create examiner")
     @ResponseStatus(HttpStatus.CREATED)
-    private ExaminerDto createExaminer(@Valid @RequestBody CreateExaminerCommand command) {
+    public ExaminerDto createExaminer(@Valid @RequestBody CreateExaminerCommand command) {
         return examinerService.createExaminer(command);
     }
 
-    @PutMapping("/room/{roomId}")
+    @PutMapping("/remove/{examinerId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @Operation(summary = "update the room of examiner", description = "update the room of examiner")
-    private ExaminerDto updateExaminerRoom(@PathVariable("roomId") long roomId, @RequestBody CreateExaminerToRoomCommand command) {
+    @Operation(summary = "delete examiner from room", description = "delete examiner from room by id")
+    public ExaminerDto removeExaminerFromRoom(@PathVariable("examinerId") long examinerId){
+        return examinerService.removeExaminerFromRoom(examinerId);
+    }
+
+    @PutMapping("/{roomId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "update the room of examiner with check", description = "update the room of examiner")
+    public ExaminerDto updateExaminerRoom(@PathVariable("roomId") long roomId, @RequestBody CreateExaminerToRoomCommand command) {
         return examinerService.updateExaminerByRoomName(roomId, command);
     }
-
-    @PutMapping("/{examinerId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    @Operation(summary = "update the room of examiner", description = "update the room of examiner")
-    private ExaminerDto updateExaminerRoomExaminer(@PathVariable("examinerId") long examinerId, @RequestBody CreateRoomToExaminer command) {
-        return examinerService.updateRoomByExaminerId(examinerId, command);
-    }
-
 
 
     @GetMapping("/{examinerId}")
     @Operation(summary = "find examiner by room", description = "find examiner by room")
-    private ExaminerDto findExaminersByRoomNumber(@Positive @PathVariable long examinerId){
+    public ExaminerDto findExaminersByRoomNumber(@Positive @PathVariable long examinerId){
         return examinerService.findRoomByExaminerId(examinerId);
     }
 
     @GetMapping
-    @Operation(summary = "find examiners")
-    private List<ExaminerDto> findExaminers(){
-        return examinerService.findExaminers();
+    @Operation(summary = "find all examiners", description = "find examiners by giving part of their name")
+    public List<ExaminerDto> findAllExaminers(@RequestParam Optional<String> namePart){
+        return examinerService.findAllExaminersByName(namePart);
     }
 
     @DeleteMapping("/{examinerId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @Operation(summary = "delete idr", description = "delete examiner by  id")
-    private void deleteExaminer(@PathVariable long examinerId){
+    @Operation(summary = "delete examiner by id", description = "delete examiner by  id")
+    public void deleteExaminer(@PathVariable long examinerId){
         examinerService.deleteExaminer(examinerId);
     }
 

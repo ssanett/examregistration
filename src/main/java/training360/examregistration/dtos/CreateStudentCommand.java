@@ -29,11 +29,7 @@ public class CreateStudentCommand {
     @Schema(description = "list of exam subjects")
     @NotEmpty(message = "student must have at least one exam subject")
     private List<Subject> subjects = new ArrayList<>();
-    private RoomDto room;
 
-    public CreateStudentCommand(String firstName, String lastName, List<Subject> subjects) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.subjects = subjects;
-    }
+
+
 }

@@ -14,6 +14,7 @@ import training360.examregistration.repositories.RoomRepository;
 import training360.examregistration.repositories.StudentRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -21,7 +22,6 @@ public class StudentService {
 
     private StudentRepository studentRepository;
     private RoomRepository roomRepository;
-
     private Converter converter;
 
 
@@ -62,11 +62,13 @@ public class StudentService {
         return converter.toDto(student);
     }
 
-    public void checkStudentInRoom(Student student, Room room) {
+    private void checkStudentInRoom(Student student, Room room) {
         if (!room.getStudents().contains(student)) {
             throw new StudentIsNotFoundException(student.getId());
         }
     }
+
+
 
     private void checkStudentAndRoomSubject(Student student, Room room){
         if(room.getSubject()!=null && !student.getSubjects().contains(room.getSubject())){
@@ -74,4 +76,11 @@ public class StudentService {
         }
     }
 
+
+    public List<StudentDto> findAllStudentsByName(Optional<String> namePart) {
+        if(namePart.isPresent()){
+            return converter.toDto(studentRepository.findStudentsByName(namePart));
+        }
+        return converter.toDto(studentRepository.findAll());
+    }
 }

@@ -24,8 +24,8 @@ megegyezik-e a teremben zajló vizsgával.
 
 
 | HTTP metódus | végpont           | leírás |
-|--------------|-------------------| -------|
-| POST         | "`/api/rooms/create`" | létrehoz egy új termet diákok nélkül|
+|-----|-------------------| -------|
+| POST| "`/api/rooms/create`" | létrehoz egy új termet diákok nélkül|
 | GET|"`/api/rooms`" | lekérdezi az összes termet és visszaadja az adataival együtt|
 | GET |"`/api/rooms/{number}`" |lekérdezi az adott számú termet és visszaadja az adataival együtt|
 | PUT|"`/api/rooms/{roomId}`"|hozzáadja a megadott azonosítójú teremhez a tantárgyat|
@@ -42,13 +42,13 @@ megegyezik-e a teremben zajló vizsgával.
 - **`room`** vizsgaterem
 
 |HTTP metódus|végpont|leírás|
-|---|---|---|
+|--|---|---|
 |POST|"`/api/examiners`"|létrehoz egy vizsgáztatót|
-|PUT|"`/api/examiners/{examinerId}`"|a megadott azonosítójú vizsgáztatóhoz hozzáadja a JSON-ben megadott termet|
-|PUT|"`/api/examiners/room/{roomId}`"|a megadott azonosítójú teremhez hozzáadja a JSON-ben megadott vizsgáztatót|
+|PUT|"`/api/examiners/remove/{examinerId}`"|kitörli a vizsgáztatót a teremből, de az adatbázisból nem|
+|PUT|"`/api/examiners/{roomId}`"|a megadott azonosítójú teremhez hozzáadja a JSON-ben megadott vizsgáztatót|
 |GET|"`/api/examiners/{examinerId}`"|lekérdezi a megadott azonosítójú vizsgáztót|
-|GET|"`/api/examiners`"|lekérdezi az összes vizsgáztatót|
-|DELETE|"`/api/examiners/{examinerId}`"|törli a megadott azonosítójú vizsgáztatót|
+|GET|"`/api/examiners`"|lekérdezi az összes vizsgáztatót az URL-hez fűzött keresési feltétel(névtöredék) alapján|
+|DELETE|"`/api/examiners/{examinerId}`"|törli a megadott azonosítójú vizsgáztatót az adatbázisból|
 
 ### Student (Entitás)
 
@@ -63,17 +63,14 @@ megegyezik-e a teremben zajló vizsgával.
 |HTTP metódus|végpont|leírás|
 |---|---|---|
 |GET|"`/api/students/room/{roomNumber}`"|lekérdezi a megadott számú teremben lévő összes tanulót|
+|GET|"`/api/students`"|lekérdezi az URL-ben megadott feltételek (névtöredék) alapján az összes tanulót|
 |POST|"`/api/students`"|létrehoz egy diákot terem nélkül|
 |PUT|"`/api/students/student/{roomId}`"|hozzáadja a megadott azonosítójú teremhez a JSON-ben megadott azonosítójú (már az adatbázisban szereplő) diákot|
 |PUT|"`/api/students/{roomId}/{studentId}`"|a megadott azonosítójú teremből törli a megadott azonosítójú diákot|
 |DELETE|"`/api/students/{studentId}`"|törli a megadott azonosítójú diákot az adatbázisból|
 
 
-
-
-
-
-A `student` és a `room` között kétirányű több-egy, az `examiner` és a `room` között egyirányú egy-egy kapcsolat van.
+A `student` és a `room` között kétirányú több-egy, az `examiner` és a `room` között egyirányú egy-egy kapcsolat van.
 
 ### Subject (Enum)
 
@@ -82,10 +79,10 @@ A `student` és a `room` között kétirányű több-egy, az `examiner` és a `r
 ## Technológiai részletek
 Ez egy háromrétegű webes alkalmazás controller, service és repository réteggel, minden entitáshoz kapcsolódó, 
 a rétegnek megfelelő elnevezésekkel. A megvalósítás JAVA nyelven, Spring Boot keretrendszer használatával történik.
-Az alkalmazás képes HTTP kéréseket fogadni, azokat a RESTful webszolgáltatások segítéségvel valósítja meg. 
+Az alkalmazás képes HTTP kéréseket fogadni, azokat a RESTful webszolgáltatások segítéségével valósítja meg. 
 Adattárolásra SQl alapú MariaDb adatbázist használ, melyben a táblákat Liquibase hozza létre a megfelelő migrációs fájlokkal. 
 A tesztelésre a WebClient-tel implementált integrációs tesztek állnak rendelkeésre. A tesztelés külön adatbázistáblákkal történik.
-Az alkalmazás tartalma egy Swagger felületet. 
+Az alkalmazás tartalmaz egy Swagger felületet. 
 
 
 

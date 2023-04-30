@@ -332,4 +332,53 @@ class StudentControllerTestIT {
 
         assertEquals("Room is not found", problemDetail.getDetail());
     }
+
+    @Test
+    void testStudentsByNamePartInLastName(){
+        client.post()
+                .uri("/api/students")
+                .bodyValue(new CreateStudentCommand("Béla", "Nagy", subjects))
+                .exchange()
+                .expectBody(StudentDto.class).returnResult().getResponseBody();
+
+        client.post()
+                .uri("/api/students")
+                .bodyValue(new CreateStudentCommand("Klára", "Nagy", subjects))
+                .exchange()
+                .expectBody(StudentDto.class).returnResult().getResponseBody();
+
+        List<StudentDto> result = client.get()
+                .uri(uriBuilder -> uriBuilder.path("api/students").queryParam("namePart","Nagy")
+                        .build())
+                .exchange()
+                .expectBodyList(StudentDto.class).returnResult().getResponseBody();
+
+        assertThat(result).hasSize(2);
+    }
+
+    @Test
+    void testStudentsByNamePartInFirstName(){
+        client.post()
+                .uri("/api/students")
+                .bodyValue(new CreateStudentCommand("Béla", "Nagy", subjects))
+                .exchange()
+                .expectBody(StudentDto.class).returnResult().getResponseBody();
+
+        client.post()
+                .uri("/api/students")
+                .bodyValue(new CreateStudentCommand("Klára", "Nagy", subjects))
+                .exchange()
+                .expectBody(StudentDto.class).returnResult().getResponseBody();
+
+        List<StudentDto> result = client.get()
+                .uri(uriBuilder -> uriBuilder.path("api/students").queryParam("namePart","Bé")
+                        .build())
+                .exchange()
+                .expectBodyList(StudentDto.class).returnResult().getResponseBody();
+
+        assertThat(result).hasSize(1)
+                .extracting(StudentDto::getLastName)
+                .containsExactlyInAnyOrder("Nagy");
+    }
+
 }

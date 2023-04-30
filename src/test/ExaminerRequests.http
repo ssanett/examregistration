@@ -1,17 +1,30 @@
+###
 GET http://localhost:8080/api/examiners
 Accept: application/json
 
-###
+### examiner1
 POST http://localhost:8080/api/examiners
 Content-Type: application/json
 
 {
-  "firstName": "Hanna",
-  "lastName" : "Doe"
+  "firstName": "Albert",
+  "lastName" : "Nagy"
 
 }
 
+### examiner2
+POST http://localhost:8080/api/examiners
+Content-Type: application/json
+
+{
+  "firstName": "",
+  "lastName" : "Kiss"
+
+}
+
+
 ###
+DELETE http://localhost:8080/api/examiners/
 
 
 
